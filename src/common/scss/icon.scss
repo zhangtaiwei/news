@@ -1,0 +1,52 @@
+@font-face {
+  font-family: 'elm-icon';
+  src:  url('../fonts/news-icon.eot?g5k3fn');
+  src:  url('../fonts/news-icon.eot?g5k3fn#iefix') format('embedded-opentype'),
+    url('../fonts/news-icon.ttf?g5k3fn') format('truetype'),
+    url('../fonts/news-icon.woff?g5k3fn') format('woff'),
+    url('../fonts/news-icon.svg?g5k3fn#elm-icon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'elm-icon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 问号
+.icon-search:before {
+  content: "\e986";
+}
+
+
+.icon-menu:before {
+  content: "\e9bd";
+}
+.icon-smile:before {
+  content: "\e9e1";
+}
+
+.icon-appleinc:before {
+  content: "\eabe";
+}
+.icon-android:before {
+  content: "\eac0";
+}
+.icon-reddit:before {
+  content: "\eac6";
+}
+.icon-html-five2:before {
+  content: "\eae5";
+}
+
