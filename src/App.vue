@@ -2,6 +2,12 @@
   <div id="app">
     <newshead :titlenumber="num" @get-hide="setHide"></newshead>
     <section class="main-aside" v-show="isShow" transition="leftright">
+      <div class="me-msg">
+        <div class="me-head">
+          <img src="logo.png">
+        </div>
+        <div class="me-name">张越</div>
+      </div>
       <nav class="router-list">
         <div class="router-li">
           <span class="router-icon icon-appleinc"></span>
@@ -25,6 +31,7 @@
         </div>
       </nav>
     </section>
+    <div class="main-bg" v-show="isShow" transition="bg" @click="asideHide()"></div>
     <router-view keep-alive></router-view>
   </div>
 </template>
@@ -48,6 +55,9 @@ export default {
     },
     setHide(msg) {
       this.isShow = msg;
+    },
+    asideHide() {
+      this.isShow = false;
     }
   },
   components: {
@@ -66,7 +76,7 @@ export default {
     top: 0;
     bottom: 0;
     left: 0;
-    width: 40%;
+    width: 70%;
     z-index: 99;
     transition: all 500ms;
     &.leftright-transition {
@@ -82,6 +92,24 @@ export default {
       opacity: 0;
     }
     background-color: #555;
+    .me-msg {
+      width: 100%;
+      .me-head {
+        width: 100%;
+        img {
+          display: block;
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          margin: 30px auto;
+        }
+      }
+      .me-name {
+        text-align: center;
+        color: #fff;
+        margin: 20px 0;
+      }
+    }
     .router-list {
       width: 100%;
       height: 100%;
@@ -106,6 +134,25 @@ export default {
           line-height: 40px;
         }
       }
+    }
+  }
+  .main-bg {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 98;
+    transition: all 500ms;
+    &.bg-transition {
+      opacity: 0.4;
+    }
+    &.bg-enter {
+      opacity: 0;
+    }
+    &.bg-leave {
+      opacity: 0;
     }
   }
 </style>

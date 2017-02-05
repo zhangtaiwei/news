@@ -23,7 +23,7 @@
     },
     methods: {
       showAside() {      
-        this.isHide = !this.isHide;
+        this.isHide = true;
         this.$emit('get-hide',this.isHide);
       }
     }
