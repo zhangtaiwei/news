@@ -13,17 +13,28 @@
       </ul>
     </div>
   </section>
-  <section class="detail-wrappper">
-    <newsdetail></newsdetail>
+  <section class="detail-wrappper" v-show="detailshow">
+    <header class="detail-head">
+      <span>back</span>
+      {{daystr}}
+    </header>
+    <div class="detail-loading-gif" v-show="isLoadingGif" transition="gif">
+      <img src="timg.gif"></img>
+    </div>
+    <div class="detail-content-wrapper" v-show="isLoading" transition="content">
+      <div class="detail-content">
+        <h4>{{detailcontent.title}}</h4>
+        <div class="detail-text" v-el:detail-text>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script>
   // 引用滑屏组件
 	import iScroll from 'better-scroll';
-  // 引用详情页组件
-  import detail from './../detail/detail.vue';
-
+  import detailhead from './../detailhead/detailhead.vue';
   const ERROR = false;
 
   export default {
@@ -32,29 +43,62 @@
     },
     data() {
       return {
+        detailshow: false,
         imgnumber: 0,
         num: 0,
         page: 1,
         imgData: [],
         list1: [],
         list2: [],
-        onoff: true
+        onoff: true,
+        msgday: [],
+        daystr: null,
+        detailcontent: null,
+        isLoading: false,
+        isLoadingGif: true
       };
+    },
+    watch: {
+      daystr(val,oldVal) {
+        // props 异步加载,使用watch监听数据变化
+        this.detailshow = true;
+      }
     },
     methods: {
       imgOnload() {
         this.imgnumber ++;
-        console.log(this.imgnumber);
         if(this.imgnumber === this.num) {
           this.onoff = true;
+          this.scroll.refresh();
         }
       },
-      getDetail(index) {
-       
+      getDetail(index,list) {
+        this.isLoading = false;
+        this.isLoadingGif = true;
+        // 显示详细页
+        let date = list[index]['publishedAt'].split('T')[0];
+        this.msgday[0] = date.split('-')[0];
+        this.msgday[1] = date.split('-')[1];
+        this.msgday[2] = date.split('-')[2];
+        this.daystr = this.msgday.join('');
+        this.$http.get('http://gank.io/api/history/content/day/'+ this.msgday[0] +'/'+ this.msgday[1] +'/'+ this.msgday[2]).then(
+          function(res) {
+            res = res.body;
+            if(res.error === ERROR) {
+              let then = this;
+              this.detailcontent = res.results[0];
+              this.$els.detailText.innerHTML = this.detailcontent.content;
+              let imgitems = this.$els.detailText.getElementsByTagName('img')[0];
+              imgitems.onload = function() {
+                then.isLoading = true;
+                then.isLoadingGif = false;
+              };
+            }
+          }
+        );
       },
       getNextContent() {
         this.page++;
-        console.log(this.page);
         this.$http.get('http://gank.io/api/data/福利/10/' + this.page).then(
           function(res) {
              res = res.body;
@@ -82,18 +126,31 @@
         let fatherHeight = this.$els.giftContent.offsetHeight;
         // 最大滚动距离
         let maxHeight = fatherHeight - viewHeight;
-        // 滚动超出边界,并且开关为true
-        if( maxHeight <= Y && this.onoff === true && this.imgnumber === this.num) {
-          console.log(1);
-          console.log(1);
-          // 问题所在？图片的高度没有加载出来，会重复加载，maxHeight 会有问题
-          // this.onoff === false;
-          // this.getNextContent();
+        if(this.onoff == true && maxHeight <= this.Y ) {
+          // 避免重复加载
+          this.onoff = false;
+          this.num += 10;
+          this.page ++;
+          console.log(this.page);
+          this.$http.get('http://gank.io/api/data/福利/10/' + this.page).then(
+            function(res) {
+              res = res.body;
+              if(res.error === ERROR) {
+                Array.prototype.push.apply(this.imgData,res.results);
+                for(let i=this.num-10; i<this.num; i++) {
+                  if(i%2==0) {
+                    this.list1.push(this.imgData[i]);
+                  }else {
+                    this.list2.push(this.imgData[i]);
+                  }
+                }
+              }
+            }
+          );
         }
       }
     },
     components: {
-      newsdetail: detail
     },
     ready: function() {
       // API接口 分类数据: http://gank.io/api/data/数据类型/请求个数/第几页
@@ -123,6 +180,7 @@
                 HWCompositing: true
               });
               this.scroll.on('scroll',function(pos){
+                // 滚动距离
                 _this.Y = Math.abs(Math.round(pos.y));
                 _this.getNextPage(_this.Y);
               }); 
@@ -164,6 +222,92 @@
           }
         }
       }
+    }
+  }
+  .detail-wrappper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    .detail-head {
+      position: relative;
+      width: 100%;
+      height: 50px;
+      background-color: yellow;
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 50px;
+      text-align: center;
+      text-spacing: 2px;
+      span {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 70px;
+        height: 50px;
+        text-align: left;
+        text-indent: 10px;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 50px;
+      }
+    }
+    .detail-loading-gif {
+      position: relative;
+      position: absolute;
+      left: 0;
+      top: 50px;
+      bottom: 0;
+      width: 100%;
+      background: #36c3e5;
+      overflow: hidden;
+      transition: all 0.5s;
+      .gif-transition {
+        opacity: 1;
+        img {
+          opacity: 1;
+        }
+      }
+      .gif-enter {
+        opacity: 0;
+        img {
+          opacity: 0;
+        }
+      }
+      .gif-leave {
+        opacity: 0;
+        img {
+          opacity: 0;
+        }
+      }
+      img {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -100px;
+        margin-top: -100px;
+        width: 200px;
+        transition: all 0.5s;
+      }
+    }
+    .detail-content-wrapper {
+      position: absolute;
+      left: 0;
+      top: 50px;
+      bottom: 0;
+      width: 100%;
+      background: #fff;
+      overflow: hidden;
+      .detail-content {
+        h4 {
+
+        }
+        .detail-text {
+
+        }
+      }  
     }
   }
 </style>
