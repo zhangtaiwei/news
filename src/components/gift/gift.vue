@@ -15,13 +15,13 @@
   </section>
   <section class="detail-wrappper" v-show="detailshow">
     <header class="detail-head">
-      <span>back</span>
+      <span @click="hidedetail()">back</span>
       {{daystr}}
     </header>
     <div class="detail-loading-gif" v-show="isLoadingGif" transition="gif">
       <img src="timg.gif"></img>
     </div>
-    <div class="detail-content-wrapper" v-show="isLoading" transition="content">
+    <div class="detail-content-wrapper" v-show="isLoading" transition="content" v-el:detail-wrap>
       <div class="detail-content">
         <h4>{{detailcontent.title}}</h4>
         <div class="detail-text" v-el:detail-text>
@@ -65,6 +65,9 @@
       }
     },
     methods: {
+      hidedetail() {
+        this.detailshow = false;
+      },
       imgOnload() {
         this.imgnumber ++;
         if(this.imgnumber === this.num) {
@@ -92,6 +95,13 @@
               imgitems.onload = function() {
                 then.isLoading = true;
                 then.isLoadingGif = false;
+                then.$nextTick(function(){
+                  if(!then.detailScroll) {
+                    then.detailScroll = new iScroll(then.$els.detailWrap,{});
+                  }else {
+                    then.detailScroll.refresh();
+                  }
+                });
               };
             }
           }
@@ -264,19 +274,19 @@
       background: #36c3e5;
       overflow: hidden;
       transition: all 0.5s;
-      .gif-transition {
+      &.gif-transition {
         opacity: 1;
         img {
           opacity: 1;
         }
       }
-      .gif-enter {
+      &.gif-enter {
         opacity: 0;
         img {
           opacity: 0;
         }
       }
-      .gif-leave {
+      &.gif-leave {
         opacity: 0;
         img {
           opacity: 0;
@@ -302,10 +312,26 @@
       overflow: hidden;
       .detail-content {
         h4 {
-
+          width: 100%;
+          height: 40px;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 40px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+          text-index: 10px;
         }
         .detail-text {
-
+         img {
+           width: 100%;
+         }
+         h3 {
+          font-size: 20px;
+          line-height: 30px;
+          font-weight: 600;
+          text-align: center;
+         }
         }
       }  
     }
